@@ -8,8 +8,8 @@ from time import time
 import pickle
 
 # NLP stuff
-import spacy
-import en_core_web_sm
+#import spacy
+#import en_core_web_sm
 from nltk.corpus import stopwords
 
 import config
@@ -19,7 +19,7 @@ class data():
 	def __init__(self):
 		self.dataframe = pd.read_pickle('all_the_news.pkl')
 
-		self.nlp = en_core_web_sm.load()
+		#self.nlp = en_core_web_sm.load()
 
 		self.stopwords = {s : True for s in stopwords.words('english')}
 
