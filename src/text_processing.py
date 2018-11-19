@@ -5,10 +5,12 @@ cleaning strings, tokenizing words, and removing tokens.
 
 import pandas as pd
 from time import time
+import pickle
 
 # NLP stuff
 import spacy
 import en_core_web_sm
+from nltk.corpus import stopwords
 
 import config
 
@@ -18,6 +20,8 @@ class data():
 		self.dataframe = pd.read_pickle('all_the_news.pkl')
 
 		self.nlp = en_core_web_sm.load()
+
+		self.stopwords = {s : True for s in stopwords.words('english')}
 
 		# Whether or not we want to take a subset of the dataframe
 		self.subset = True
@@ -37,6 +41,25 @@ class data():
 			if not idx % 5000:
 				print(idx, "rows in", (time()-start)/60, 'min')
 
+	def __vader_polarity__(self):
+		self.vader_list = []
+
+		start = time()
+		tc = 0
+		for t in temp: 
+		    self.vader_list.append([a.polarity_scores(i) for i in t.split()])
+		    
+		    if tc == 100:
+		        amount = 150000
+		        tproj = (time()-start) * (amount/100) / 60
+		        print("Projected time to" + str(amount) + ":", tproj, 'min')
+		    if not tc % 10000:
+		        print(tc,'in', (time()-start)/60, 'min')
+		    tc+=1
+
+		with open('vader_list.pkl', 'wb') as outfile:
+			pickle.dump(self.vader_list, outfile)
+
 	# The primary function that builds the processed data
 	# Once run, the data that can be output is self.pdata
 	# Could also just return pdata later on, if that's a better design choice
@@ -46,7 +69,7 @@ class data():
 
 		start = time()
 
-		self.pdata = [c.split() for c in self.pdata]
+		self.pdata = [c.split() for c in self.pdata if c not in self.stopwords]
 
 		print('Simple splitting done in:', (time()-start)/60, 'min')
 
