@@ -12,16 +12,16 @@ import pickle
 #import en_core_web_sm
 from nltk.corpus import stopwords
 
-import config
+from .config import *
 
 class data():
 
-	def __init__(self):
-		self.dataframe = pd.read_pickle('all_the_news.pkl')
+	def __init__(self, directory_path = ''):
+		self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
 
 		#self.nlp = en_core_web_sm.load()
 
-		self.stopwords = {s : True for s in stopwords.words('english')}
+		self.stopwords = stopwords.words('english')#{s : True for s in stopwords.words('english')}
 
 		# Whether or not we want to take a subset of the dataframe
 		self.subset = True
@@ -31,7 +31,7 @@ class data():
 	def __spacy__(self):
 
 		if self.subset:
-			self.dataframe = self.dataframe.sample(frac=config.subsample_size).reset_index(drop=True)
+			self.dataframe = self.dataframe.sample(frac=subsample_size).reset_index(drop=True)
 
 		start = time()
 		self.spacy_text = {}
@@ -63,13 +63,15 @@ class data():
 	# The primary function that builds the processed data
 	# Once run, the data that can be output is self.pdata
 	# Could also just return pdata later on, if that's a better design choice
-	def get_processed_data(self):
+	def get_processed_data(self, load = False):
+		if load:
+			# Placeholder
+			pass
+		else:
+			self.pdata = self.dataframe.content.tolist()
 
-		self.pdata = self.dataframe.content.tolist()
+			start = time()
 
-		start = time()
-
-		self.pdata = [c.split() for c in self.pdata if c not in self.stopwords]
-
-		print('Simple splitting done in:', (time()-start)/60, 'min')
+			self.pdata = [[i for i in c.lower().split() if i not in self.stopwords] for c in self.pdata]
+			print('Simple splitting done in:', (time()-start)/60, 'min')
 
