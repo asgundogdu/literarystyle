@@ -12,7 +12,7 @@ try:
 except:
 	from config import *
 
-def similarity_to_edgelist(sim_matrix, labels, custom_sim_threshold = None):
+def similarity_to_edgelist(sim_matrix, labels = None, custom_sim_threshold = None):
 	"""
 	Should take the output of standard doc2vec similarities from gensim
 	"""
@@ -21,6 +21,9 @@ def similarity_to_edgelist(sim_matrix, labels, custom_sim_threshold = None):
 		sim_threshold = custom_sim_threshold
 	else:
 		sim_threshold = config_sim_threshold
+
+	if labels is None:
+		labels = list(range(len(sim_matrix)))
 
 	edgelist = []
 	place = 0
@@ -39,7 +42,7 @@ def similarity_to_edgelist(sim_matrix, labels, custom_sim_threshold = None):
 	return edgelist
 
 # Function designed to tune the similarity threshold until the desired percentage of links are achieved
-def tune_sim_thresh(sim_matrix, labels, perc_links):
+def tune_sim_thresh(sim_matrix, perc_links):
 	num_nodes = len(sim_matrix)
 	num_possible_links = (num_nodes * (num_nodes-1)) / 2
 	target_num_links = num_possible_links * perc_links
@@ -52,7 +55,7 @@ def tune_sim_thresh(sim_matrix, labels, perc_links):
 	num_loops = 0
 	start = time()
 	while not (target_lower_bound <= num_links & num_links <= target_upper_bound):
-		num_links = len(similarity_to_edgelist(sim_matrix, labels, custom_sim_threshold = threshold))
+		num_links = len(similarity_to_edgelist(sim_matrix, custom_sim_threshold = threshold))
 
 		# Will only be two cases that num_links doesn't fall in interval
 		# A smarter tune step is probably possible
