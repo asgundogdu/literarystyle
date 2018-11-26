@@ -30,9 +30,12 @@ class Data():
 		self.subset = config_subset
 
 		if self.subset:
-			self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size).reset_index(drop=True)
+			self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size)
+			self.labels = self.dataframe.index.tolist()
+			self.dataframe = self.dataframe.reset_index(drop=True)
 		else:
 			self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
+			self.labels = self.dataframe.index.tolist()
 
 		#self.nlp = en_core_web_sm.load()
 
