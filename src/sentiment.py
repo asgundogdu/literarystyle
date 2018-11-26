@@ -32,5 +32,11 @@ class Sent():
 		with open('vader_list_wo_stpwrds.pkl', 'wb') as outfile:
 			pickle.dump(self.vader_list, outfile)
 
-	def filter_by_sentiment(self):
-		self.pdata = [[i['word'] for i in j if abs(i['compound']) < config_sent_threshold] for j in self.vader_list]
+	def filter_by_sentiment(self, threshold = None):
+		if threshold is None:
+			threshold = config_sent_threshold
+
+		self.pdata = [[i['word'] for i in j if abs(i['compound']) < threshold] for j in self.vader_list]
+
+	def filter_neutral_sent(self):
+		self.pdata = [[i['word'] for i in j if abs(i['compound']) != 0] for j in self.vader_list]
