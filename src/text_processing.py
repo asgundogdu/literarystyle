@@ -17,9 +17,13 @@ from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer 
 
-from .config import *
+# Need relative import if in higher directory, but will through error if running from same directory
+try:
+	from .config import *
+except:
+	from config import *
 
-class data():
+class Data():
 
 	def __init__(self, directory_path = ''):
 		# Whether or not we want to take a subset of the dataframe
