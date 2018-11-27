@@ -1,18 +1,27 @@
 # literarystyle
-Understanding Literary Style within the News Corpus - UML Course Project
+Understanding Sentiment Effect On Similarity Networks for All the News - UML Course Project
 
-## Data Explorations
+## Project Overview
 
-Please see the notebooks where we perform data cleaning, outlier detection and checked data distributions. 
+The objective of this project is to understand how presence or absense of emotionally charged words effect communities of news documents. The project flow is outlined below:
+
+1. Clean, tokenize, stem, and lemmatize news articles
+2. Calculate document similarities
+3. Create network of similarities using similarity threshold
+4. Run community detection on similarity network
+5. Remove words that exceed a sentiment intensity threshold and repeat steps 1-4
+6. Evaluate the changes between similarity networks
+
+## Milestone 1
+
+Please see the notebooks where we perform data cleaning, outlier detection and checked data distributions.
 
 `data_exploration.ipynb`
 
 `Data Exploration 2.ipynb`
 
-Based on the tf-idf analysis and PCA visualizations, we say that this challenging problem of clustering news source or authors from the text regardless of the topic is challenging.
+## Milestone 2
 
-For future implementations, we envision to use LSTM networks for getting document representation (by optimizing triplet loss), then plan to create (dis)similarity network/graph where we can trim the edges based on some threshold (CV) and then apply community detection algorithm.
-
-We can expect the resulting clusters will be something like the article source/author clusters as we extract our representations by optimizing triplet loss for either article source or authors.
-
-The worst case we can try to understand - what are the clusters or communities we will found on the network, are refering to...
+- Major aspects of data pipeline completed in src folder
+- More data exploration for sentiment in data_exploration.ipynb
+- Beginning to experiment notebook which will direct the output of the project
