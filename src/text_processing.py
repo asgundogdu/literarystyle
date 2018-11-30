@@ -16,15 +16,18 @@ from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from nltk.stem.wordnet import WordNetLemmatizer
 
+from collections import Counter
+
 # Need relative import if in higher directory, but will through error if running from same directory
 try:
 	from .config import *
 	from .sentiment import Sent
 except:
-	from config import *
-	from sentiment import Sent
+	# from config import *
+	# from sentiment import Sent
+	pass
 
-class Data(Sent):
+class Data(object):
 
 	def __init__(self, directory_path = ''):
 		# Whether or not we want to take a subset of the dataframe
@@ -85,4 +88,32 @@ class Data(Sent):
 			# Numerical processing from homework assignment 4
 			self.pdata = [['NUM' if re.match('[0-9]+', word) is not None else word for word in c ] for c in self.pdata]
 			print('Simple splitting done in:', (time()-start)/60, 'min')
+
+
+class alt_Data(object):
+	"""docstring for alt_Data"""
+	def __init__(self, directory_path = ''):
+		super(alt_Data, self).__init__()
+		self.directory_path = directory_path
+		self.dataframe = pd.concat([pd.read_csv(directory_path+'articles1.csv'),
+                        pd.read_csv(directory_path+'articles2.csv'),
+                        pd.read_csv(directory_path+'articles3.csv')], axis=0)
+		self.pdata = None
+
+	def stem_vocab(self):
+		pass
+
+	def process_data(self, author_threshold=10, stemming = False, sentiment_filtering=False, load = False):
+		# Drop unnecessary columns for us
+		article_df = self.dataframe	.drop(['date','Unnamed: 0', 'month', 'url'],axis=1)
+		# Data cleaning
+		article_df = article_df[~article_df.author.isna()]
+		article_df = article_df[~article_df.title.isna()]
+
+		dct = dict(Counter(article_df.author.tolist()))
+		filtered_users = [key for key in dct.keys() if dct[key]>author_threshold]
+		article_df = article_df[article_df.publication.isin(filtered_users)]
+		self.pdata = article_df
+
+
 
