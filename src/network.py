@@ -47,8 +47,8 @@ def tune_sim_thresh(sim_matrix, perc_links):
 	num_possible_links = (num_nodes * (num_nodes-1)) / 2
 	target_num_links = num_possible_links * perc_links
 
-	target_upper_bound = target_num_links * 1.1
-	target_lower_bound = target_num_links * .9
+	target_upper_bound = target_num_links * 1.3
+	target_lower_bound = target_num_links * .7
 
 	num_links = 0
 	threshold = config_sim_threshold	# Initialize threshold based on config settings

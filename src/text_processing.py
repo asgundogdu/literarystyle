@@ -6,6 +6,7 @@ cleaning strings, tokenizing words, and removing tokens.
 import pandas as pd
 from time import time
 import pickle
+from collections import Counter
 
 # NLP stuff
 #import spacy
@@ -72,12 +73,23 @@ class Data(Sent):
 	# The primary function that builds the processed data
 	# Once run, the data that can be output is self.pdata
 	# Could also just return pdata later on, if that's a better design choice
-	def get_processed_data(self, load = False):
+	def get_processed_data(self, author_threshold = 10, load = False):
 		if load:
 			# Placeholder
 			pass
 		else:
-			self.pdata = self.dataframe.content.tolist()
+			article_df = self.dataframe
+
+			# Data cleaning
+			article_df = article_df[~article_df.author.isna() & ~article_df.title.isna()]
+
+			dct = dict(Counter(article_df.author.tolist()))
+			filtered_users = [key for key in dct.keys() if dct[key]>author_threshold]
+			article_df = article_df[article_df.publication.isin(filtered_users)]
+
+			self.labels = article_df.index.tolist()
+
+			self.pdata = article_df.content.tolist()
 
 			start = time()
 
