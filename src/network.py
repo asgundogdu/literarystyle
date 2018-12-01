@@ -55,6 +55,8 @@ def tune_sim_thresh(sim_matrix, perc_links):
 	num_loops = 0
 	start = time()
 	while not (target_lower_bound <= num_links & num_links <= target_upper_bound):
+		if num_loops == 15: break
+		
 		num_links = len(similarity_to_edgelist(sim_matrix, custom_sim_threshold = threshold))
 
 		# Will only be two cases that num_links doesn't fall in interval
