@@ -72,11 +72,18 @@ def display_topics(model, feature_names, no_top_words):
 
 def prune_fully_connected(D, k, verbose):
     pruned_network = _knn_mst(D, k)
-    if verbose: print("After pruning network has {} edges".format(np.count_nonzero(pruned_network)))
-    return pruned_network
+    num_edges = np.count_nonzero(pruned_network)
+    if verbose: print("After pruning network has {} edges".format(num_edges))
+    return pruned_network, num_edges
 
 
-def symm_KL_sim_matrix(documents, LDA_topic_num = 16, mnitsknn_k = 13, prune = True, feature_extractor = 'tfidf', stop_words = True, verbose=True):
+def symm_KL_sim_matrix(documents, LDA_topic_num = 16, mnitsknn_k = 13, feature_extractor = 'tfidf', stop_words = True, verbose=True):
+    """
+    Documents enters as a list of lists based on contents from text_processing.py
+    num documents x document tokens
+    """
+    output = {}
+
     if not stop_words: 
         stop = []
         if verbose: print('Stop words are not removed!')
@@ -88,10 +95,10 @@ def symm_KL_sim_matrix(documents, LDA_topic_num = 16, mnitsknn_k = 13, prune = T
     if verbose: print('Computing word features using {}...'.format(feature_extractor))
     if feature_extractor == 'tfidf':
         bow_transformer = TfidfVectorizer(use_idf=True, smooth_idf=True, ngram_range=(1,2), stop_words=stop, min_df=0.09, max_df=0.91)
-        tf_vec = bow_transformer.fit_transform(documents.content.tolist())
+        tf_vec = bow_transformer.fit_transform(documents)
     elif feature_extractor == 'count_vec':
         bow_transformer = CountVectorizer(max_df=0.91, min_df=.09,  stop_words=stop)
-        tf_vec = bow_transformer.fit_transform(documents.content.tolist())
+        tf_vec = bow_transformer.fit_transform(documents)
 
     tf_feature_names = bow_transformer.get_feature_names()
 
@@ -118,9 +125,14 @@ def symm_KL_sim_matrix(documents, LDA_topic_num = 16, mnitsknn_k = 13, prune = T
     if verbose: print('\nCalculating Symmetric KL Divergence values of pairs... Takes a while')
     
     sym_kl = 0.5 * ((theta[:,None,:]*log_odds).sum(-1) - (theta[None,:,:] * log_odds).sum(-1))
+
+    output['pre_pruned_sim'] = sym_kl
     
     if verbose: print('\nSymmetric KL Divergence values are calculated and dimensions are {}'.format(sym_kl.shape))
 
-    if prune: pairwise_sim = prune_fully_connected(sym_kl, mnitsknn_k, verbose)
+    pairwise_sim, num_edges = prune_fully_connected(sym_kl, mnitsknn_k, verbose)
 
-    return pairwise_sim
+    output['sim'] = pairwise_sim
+    output['num_edges_post_pruning'] = num_edges
+
+    return output

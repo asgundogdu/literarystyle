@@ -79,5 +79,6 @@ def tune_sim_thresh(sim_matrix, perc_links):
 
 	print('Number of loops to converge:', num_loops)
 	print('Converged in', (time() - start)/60, 'min')
+	print('Similarity threshold after tuning:', threshold)
 
 	return threshold
