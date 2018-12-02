@@ -30,6 +30,7 @@ def similarity_to_edgelist(sim_matrix, labels = None, custom_sim_threshold = Non
 	for i, m in enumerate(sim_matrix):
 		for j, n in enumerate(m):
 			# use placeholder to avoid repeated links
+			#print(n)
 			if j < place:
 				continue
 			elif i == j:
@@ -53,22 +54,25 @@ def tune_sim_thresh(sim_matrix, perc_links):
 	num_links = 0
 	threshold = config_sim_threshold	# Initialize threshold based on config settings
 	num_loops = 0
+	smoothing = 2
 	start = time()
-	while not (target_lower_bound <= num_links & num_links <= target_upper_bound):
-		if num_loops == 15: break
+	while True:
+		edgelist = similarity_to_edgelist(sim_matrix, custom_sim_threshold = threshold)
+		num_links = len(edgelist)
 		
-		num_links = len(similarity_to_edgelist(sim_matrix, custom_sim_threshold = threshold))
+		if ((target_lower_bound <= num_links) & (num_links <= target_upper_bound)): break
+		elif num_loops == 100: break
 
 		# Will only be two cases that num_links doesn't fall in interval
 		# A smarter tune step is probably possible
 		if num_links < target_lower_bound:
-			decrease = 1 - (num_links / target_upper_bound)
+			decrease = 1 - (num_links / target_num_links)
 
-			threshold = threshold - (threshold * decrease) / 2
+			threshold = threshold - (threshold * decrease) / smoothing
 			print('decrease:', decrease)
 		else: 
-			increase = 1 - (target_lower_bound / num_links)
-			threshold = threshold + (threshold * increase) / 2
+			increase = 1 - (target_num_links / num_links)
+			threshold = threshold + (threshold * increase) / smoothing
 			print('increase:', increase)
 
 		#if not num_loops % 10:
@@ -76,11 +80,16 @@ def tune_sim_thresh(sim_matrix, perc_links):
 		print('Upper bound:', target_upper_bound/num_possible_links,
 		'   Lower bound:', target_lower_bound/num_possible_links,
 		'   Current:', num_links/num_possible_links)
+		print(num_loops, 'loops in', (time() - start)/60, 'min')
+		print('Upper bound:', target_upper_bound,
+		'   Lower bound:', target_lower_bound,
+		'   Current:', num_links)
 
 		num_loops += 1
+		smoothing += 1
 
 	print('Number of loops to converge:', num_loops)
 	print('Converged in', (time() - start)/60, 'min')
 	print('Similarity threshold after tuning:', threshold)
 
-	return threshold
+	return edgelist
