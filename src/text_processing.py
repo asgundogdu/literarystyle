@@ -31,13 +31,15 @@ class Data(Sent):
 		# Whether or not we want to take a subset of the dataframe
 		self.subset = config_subset
 
-		if self.subset:
-			self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size)
-			self.labels = self.dataframe.index.tolist()
-			self.dataframe = self.dataframe.reset_index(drop=True)
-		else:
-			self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
-			self.labels = self.dataframe.index.tolist()
+		self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
+
+		# if self.subset:
+		# 	self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size)
+		# 	self.labels = self.dataframe.index.tolist()
+		# 	self.dataframe = self.dataframe.reset_index(drop=True)
+		# else:
+		# 	self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
+		# 	self.labels = self.dataframe.index.tolist()
 
 		#self.nlp = en_core_web_sm.load()
 
@@ -87,7 +89,23 @@ class Data(Sent):
 			filtered_users = [key for key in dct.keys() if dct[key]>author_threshold]
 			article_df = article_df[article_df.publication.isin(filtered_users)]
 
-			self.labels = article_df.index.tolist()
+			if self.subset:
+				article_df = article_df.sample(frac=config_subsample_size)
+				article_df = article_df.set_index('id', drop=True)
+				self.labels = article_df.index.tolist()
+				article_df = article_df.reset_index()
+				self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
+			else:
+				article_df = article_df.set_index('id', drop=True)
+				self.labels = article_df.index.tolist()
+				article_df = article_df.reset_index()
+				self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
+
+			label_output = pd.DataFrame({'id' : self.labels}).reset_index()
+
+			if config_write_labels:
+				label_output.to_csv('label_mapping.csv', index=False)
+				self.metadata.to_csv('metadata_by_mapping.csv', index=False)
 
 			self.pdata = article_df.content.tolist()
 

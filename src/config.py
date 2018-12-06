@@ -4,8 +4,10 @@ The config file is a global control file for settings across other files.
 	Outputs: None
 """
 
-config_subset = False
-config_subsample_size = .05
+config_subset = True
+config_subsample_size = .1
+
+config_write_labels = True
 
 config_sent_threshold = .6
 
