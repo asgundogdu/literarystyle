@@ -4,6 +4,7 @@ cleaning strings, tokenizing words, and removing tokens.
 """
 
 import pandas as pd
+import numpy as np
 from time import time
 import pickle
 from collections import Counter
@@ -99,9 +100,9 @@ class Data(Sent):
 			article_df = article_df.reset_index()
 			self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
 
-			self.metadata.id = self.metadata.id.astype('int64')
-			self.metadata.month =  self.metadata.month.astype('int64')
-			self.metadata.year = self.metadata.year.astype('int64')
+			self.metadata.id = self.metadata.id.fillna(-1).astype('int64')
+			self.metadata.month =  self.metadata.month.fillna(-1).astype('int64')
+			self.metadata.year = self.metadata.year.fillna(-1).astype('int64')
 
 			label_output = pd.DataFrame({'id' : self.labels}).reset_index()
 
