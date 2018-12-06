@@ -99,11 +99,9 @@ class Data(Sent):
 			article_df = article_df.reset_index()
 			self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
 
-			self.metadata.id = self.metadata.id.map(int)
-			self.metadata.year = self.metadata.year.map(int)
-			self.metadata.month = self.metadata.month.map(int)
-
-			print(self.metadata)
+			self.metadata.id = self.metadata.id.astype('int64')
+			self.metadata.month =  self.metadata.month.astype('int64')
+			self.metadata.year = self.metadata.year.astype('int64')
 
 			label_output = pd.DataFrame({'id' : self.labels}).reset_index()
 
