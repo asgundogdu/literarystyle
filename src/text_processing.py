@@ -27,11 +27,13 @@ except:
 
 class Data(Sent):
 
-	def __init__(self, directory_path = ''):
+	def __init__(self, directory_path = '', process_code = 0):
 		# Whether or not we want to take a subset of the dataframe
 		self.subset = config_subset
 
 		self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
+
+		self.process_code = process_code
 
 		# if self.subset:
 		# 	self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size)
@@ -104,8 +106,8 @@ class Data(Sent):
 			label_output = pd.DataFrame({'id' : self.labels}).reset_index()
 
 			if config_write_labels:
-				label_output.to_csv('label_mapping.csv', index=False)
-				self.metadata.to_csv('metadata_by_mapping.csv', index=False)
+				label_output.to_csv('label_mapping_' + str(self.process_code) + '.csv', index=False)
+				self.metadata.to_csv('metadata_by_mapping_' + str(self.process_code) + '.csv', index=False)
 
 			self.pdata = article_df.content.tolist()
 
