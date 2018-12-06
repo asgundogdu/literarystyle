@@ -27,13 +27,13 @@ except:
 
 class Data(Sent):
 
-	def __init__(self, directory_path = '', process_code = 0):
+	def __init__(self, directory_path = '', process_code = 0, outpath = ''):
 		# Whether or not we want to take a subset of the dataframe
 		self.subset = config_subset
+		self.process_code = process_code
+		self.outpath = outpath
 
 		self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl')
-
-		self.process_code = process_code
 
 		# if self.subset:
 		# 	self.dataframe = pd.read_pickle(directory_path + 'all_the_news.pkl').sample(frac=config_subsample_size)
@@ -93,21 +93,23 @@ class Data(Sent):
 
 			if self.subset:
 				article_df = article_df.sample(frac=config_subsample_size)
-				article_df = article_df.set_index('id', drop=True)
-				self.labels = article_df.index.tolist()
-				article_df = article_df.reset_index()
-				self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
-			else:
-				article_df = article_df.set_index('id', drop=True)
-				self.labels = article_df.index.tolist()
-				article_df = article_df.reset_index()
-				self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
+
+			article_df = article_df.set_index('id', drop=True)
+			self.labels = article_df.index.tolist()
+			article_df = article_df.reset_index()
+			self.metadata = article_df.reset_index()[['id', 'title', 'publication', 'author', 'date', 'year', 'month']].copy().reset_index()
+
+			self.metadata.id = self.metadata.id.map(int)
+			self.metadata.year = self.metadata.year.map(int)
+			self.metadata.month = self.metadata.month.map(int)
+
+			print(self.metadata)
 
 			label_output = pd.DataFrame({'id' : self.labels}).reset_index()
 
 			if config_write_labels:
-				label_output.to_csv('label_mapping_' + str(self.process_code) + '.csv', index=False)
-				self.metadata.to_csv('metadata_by_mapping_' + str(self.process_code) + '.csv', index=False)
+				label_output.to_csv(self.outpath + 'label_mapping_' + str(self.process_code) + '.csv', index=False)
+				self.metadata.to_csv(self.outpath + 'metadata_by_mapping_' + str(self.process_code) + '.csv', index=False)
 
 			self.pdata = article_df.content.tolist()
 
